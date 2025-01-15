@@ -1,5 +1,4 @@
 
-import SolutionsAndTests.CS_DS.u8.ChallengeSet3.DS8_TerrainCost;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
