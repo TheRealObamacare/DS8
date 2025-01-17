@@ -69,11 +69,20 @@ public class DS8_DFS
         while(!stack.isEmpty())
         {
             Point location = stack.pop();
-            System.out.println("Popped: " + location.x + ", " + location.y);
             visited[location.x][location.y] = true;
             if (maze[location.x][location.y] == 'E')
             {
                 return true;
+            }
+            if (maze[location.x][location.y] == 'A' || maze[location.x][location.y] == 'B' || maze[location.x][location.y] == 'C' || maze[location.x][location.y] == 'D'|| maze[location.x][location.y] == 'a'|| maze[location.x][location.y] == 'b'|| maze[location.x][location.y] == 'c'|| maze[location.x][location.y] == 'd')
+            {
+
+                Point teleport = findChar(maze, inverseCase(maze[location.x][location.y]));
+                if (!visited[teleport.x][teleport.y])
+                {
+                    stack.push(teleport);
+                    visited[teleport.x][teleport.y] = true;
+                }
             }
             addToStack(maze, new Point(location.x + 1, location.y));
             addToStack(maze, new Point(location.x - 1, location.y));
@@ -112,7 +121,6 @@ public class DS8_DFS
 /*
 if (maze[location.x][location.y] == 'A' || maze[location.x][location.y] == 'B' || maze[location.x][location.y] == 'C' || maze[location.x][location.y] == 'D'|| maze[location.x][location.y] == 'a'|| maze[location.x][location.y] == 'b'|| maze[location.x][location.y] == 'c'|| maze[location.x][location.y] == 'd')
             {
-
                 Point teleport = findChar(maze, inverseCase(maze[location.x][location.y]));
                 stack.push(teleport);
                 visited[teleport.x][teleport.y] = true;
