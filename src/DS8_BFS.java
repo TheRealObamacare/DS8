@@ -1,8 +1,6 @@
 import java.awt.Point;
-import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.TreeMap;
-import java.util.Set;
+
 
 public class DS8_BFS {
     public static Point[][] visitor;
@@ -49,47 +47,33 @@ public class DS8_BFS {
 
     public static String breadthFirstSearch_Unweighted(String[] edges, String vertices, char start, char end)
     {
-        DS8_Queue<ArrayList<Point>> Queue = new DS8_Queue<>();
-        Arrays.sort(edges);
-        for(int i = 0; i < vertices.length(); i++)
-        {
-            if(vertices.charAt(i) == start)
-            {
-                Queue.offer(new ArrayList<>(Arrays.asList(new Point(i, -1))));
-                visitor[i][0] = new Point(-1, -1);
-                break;
-            }
-        }
-        TreeMap<Character, Character> yay = (createMap(edges));
-        boolean[] visited = new boolean[yay.entrySet().size()];
+
+        DS8_Queue<String> Queue = new DS8_Queue<>();
+        Queue.offer(start + "");
+        boolean[] visited = new boolean[edges.length];
         while(!Queue.isEmpty())
         {
-            ArrayList<Point> location = Queue.poll();
-            Point cur = location.getLast();
-            if(vertices.charAt(cur.x) == end)
+            String cur = Queue.poll();
+            if(cur.charAt(cur.length() - 1) == end)
             {
-                String k = "";
-                for (Point p : location)
+                return cur;
+            }
+            for(int i = 0; i < edges.length; i++)
+            {
+                if (edges[i].charAt(0) == cur.charAt(cur.length() - 1) && !visited[i])
                 {
-                    k += vertices.charAt(p.x);
+                    Queue.offer(cur + edges[i].charAt(1));
+                    visited[i] = true;
+                }
+                else if (edges[i].charAt(1) == cur.charAt(cur.length() - 1) && !visited[i])
+                {
+                    Queue.offer(cur + edges[i].charAt(0));
+                    visited[i] = true;
                 }
             }
-            addToQueue(location, yay, visited);
         }
-        return "";
+        return null;
     }
-    public static void addToQueue(ArrayList<Point> location, TreeMap<Character, Character> yay, boolean[] visited)
-    {
-        try
-        {
-            
-        }
-        catch (Exception e)
-        {
-
-        }
-    }
-
     private static int getDistance(Point start, Point end) {
         if(visitor[end.x][end.y] == null)
         {
@@ -148,15 +132,4 @@ public class DS8_BFS {
             return;
         }
     }
-    public static TreeMap<Character, Character> createMap(String[] edges)
-    {
-        TreeMap<Character, Character> map = new TreeMap<>();
-        for(String edge : edges)
-        {
-            map.put(edge.charAt(0), edge.charAt(1));
-            map.put(edge.charAt(1), edge.charAt(0));
-        }
-        return map;
-    }
-
 }

@@ -1,6 +1,3 @@
-package SolutionsAndTests.CS_DS.u8.ChallengeSet2;
-
-import SolutionsAndTests.CS_DS.u8.ChallengeSet4.DS8_Path_Solution;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
