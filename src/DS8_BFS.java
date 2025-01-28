@@ -3,31 +3,31 @@ import java.util.ArrayList;
 
 
 public class DS8_BFS {
-    public static Point[][] visitor;
-    public static DS8_Queue<Point> queue = new DS8_Queue<>();
-
+    public static boolean[][] visitor;
+    public static DS8_Queue<ArrayList<Point>> queue = new DS8_Queue<>();
+    public static ArrayList<Point> list;
     public static int breadthFirstSearch_Portals(char[][] maze)
     {
         queue = new DS8_Queue<>();
-        visitor = new Point[maze.length][maze[0].length];
-        for(int i = 0; i < maze.length; i++)
-        {
-            for(int e = 0; e < maze[0].length; e++)
-            {
-                if(maze[i][e] == 'S')
-                {
-                    queue.offer(new Point(i, e));
-                    visitor[i][e] = new Point(-1, -1);
+        visitor = new boolean[maze.length][maze[0].length];
+        list = new ArrayList<>();
+        for (int i = 0; i < maze.length; i++) {
+            for (int e = 0; e < maze[0].length; e++) {
+                if (maze[i][e] == 'S') {
+                    list.add(new Point(i, e));
+                    queue.offer(list);
+                    visitor[i][e] = true;
                     break;
                 }
             }
         }
         while(!queue.isEmpty())
         {
-            Point location = queue.poll();
+            list = queue.poll();
+            Point location = list.getLast();
             if(maze[location.x][location.y] == 'E')
             {
-                return getDistance(findChar(maze, 'S'), location);
+                return list.size() - 1;
             }
             addToQueue(maze, new Point(location.x + 1, location.y), location);
             addToQueue(maze, new Point(location.x - 1, location.y), location);
@@ -36,13 +36,13 @@ public class DS8_BFS {
             if ((maze[location.x][location.y] <= 'A' && maze[location.x][location.y] >= 'D') || (maze[location.x][location.y] <= 'a' && maze[location.x][location.y] >= 'd'))
             {
                 Point portal = findChar(maze, inverseCase(maze[location.x][location.y]));
-                if (visitor[portal.x][portal.y] == null)
+                if (!visitor[portal.x][portal.y])
                 {
                     addToQueue(maze, portal, location);
                 }
             }
         }
-        return getDistance(findChar(maze, 'S'), findChar(maze, 'E'));
+        return -1;
     }
 
     public static String breadthFirstSearch_Unweighted(String[] edges, String vertices, char start, char end)
@@ -73,21 +73,6 @@ public class DS8_BFS {
             }
         }
         return null;
-    }
-    private static int getDistance(Point start, Point end) {
-        if(visitor[end.x][end.y] == null)
-        {
-            return -1;
-        }
-        int distance = 0;
-        Point cur = new Point(end);
-        while(!cur.equals(start))
-        {
-            System.out.print(cur.x + " " + cur.y + " ");
-            cur = visitor[cur.x][cur.y];
-            distance++;
-        }
-        return distance;
     }
     public static char inverseCase(char c)
     {
@@ -120,12 +105,13 @@ public class DS8_BFS {
     {
         try
         {
-            if (maze[goTo.x][goTo.y] == 'W' || visitor[goTo.x][goTo.y] != null)
+            if (maze[goTo.x][goTo.y] == 'W' || visitor[goTo.x][goTo.y])
             {
                 return;
             }
-            queue.offer(goTo);
-            visitor[goTo.x][goTo.y] = cur;
+            list.add(goTo);
+            queue.offer(list);
+            visitor[goTo.x][goTo.y] = true;
         }
         catch (Exception e)
         {
