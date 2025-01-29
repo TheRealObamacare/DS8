@@ -24,7 +24,7 @@ public class DS8_BFS {
         while(!queue.isEmpty())
         {
             list = queue.poll();
-            Point location = list.getLast();
+            Point location = list.get(list.size() - 1);
             if(maze[location.x][location.y] == 'E')
             {
                 return list.size() - 1;
