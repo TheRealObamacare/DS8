@@ -11,32 +11,71 @@ public class DS8_Dijkstras
         boolean[] visited = new boolean[edges.length];
         for (String yay : edges)
         {
-            nodes.add(new DS8_Weighted_Node(yay.charAt(0), Integer.MAX_VALUE));
+            if (yay.charAt(0) == start)
+            {
+                continue;
+            }
+            else
+                nodes.add(new DS8_Weighted_Node(yay.charAt(0), Integer.MAX_VALUE));
         }
-        ArrayList<DS8_Weighted_Node> sorted = nodes;
-        Collections.sort(sorted);
-        while(!nodes.isEmpty())
+        ArrayList<DS8_Weighted_Node> sorted = new ArrayList<>();
+        for (DS8_Weighted_Node yay : nodes)
         {
-            DS8_Weighted_Node cur = nodes.removeFirst();
+            sorted.add(yay);
+        }
+        Collections.sort(sorted);
+        while(!sorted.isEmpty())
+        {
+            DS8_Weighted_Node cur = sorted.removeFirst();
             if (cur.getDistance() == Integer.MAX_VALUE)
             {
                 break;
             }
-            if(cur.getLocation() == end)
-            {
-                return cur.getDistance();
-            }
             for(int i = 0; i < edges.length; i++)
             {
-                if (edges[i].charAt(0) == cur.getLocation() && !visited[i])
+                if (edges[i].charAt(0) == cur.getLocation())
                 {
-                    distance += Integer.parseInt(edges[i].substring(2));
-                    nodes.add(new DS8_Weighted_Node(edges[i].charAt(1), distance));
-                    visited[i] = true;
+                    for (String x: edges)
+                    {
+                        if (x.charAt(0) == edges[i].charAt(1))
+                        {
+                            distance = distFromStart(edges, start,x.charAt(0), 0);
+                            System.out.println("Distance from " + start + " to " + x.charAt(0) + " is " + distFromStart(edges, start,x.charAt(0), 0));
+                            cur.setDistance(distance);
+                            System.out.println(cur.toString());
+                            visited[i] = true;
+                        }
+                    }
+                }
+            }
+            Collections.sort(sorted);
+        }
+        for (DS8_Weighted_Node yay : nodes)
+        {
+            if (yay.getLocation() == end)
+            {
+                if (yay.getDistance() != Integer.MAX_VALUE)
+                {
+                    return yay.getDistance();
                 }
             }
         }
         return -1;
     }
 
+    public static int distFromStart(String[] edges, char start,char location, int distance)
+    {
+        if (location == start)
+        {
+            return distance;
+        }
+        for (String yay : edges)
+        {
+            if (yay.charAt(0) == location)
+            {
+                return 1 + distFromStart(edges, start, yay.charAt(1), distance + Integer.parseInt(yay.substring(2)));
+            }
+        }
+        return 0;
+    }
 }
