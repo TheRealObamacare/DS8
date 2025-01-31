@@ -1,46 +1,112 @@
 import java.awt.Point;
-import java.util.ArrayList;
 
 
 public class DS8_BFS {
-    public static boolean[][] visitor;
-    public static DS8_Queue<ArrayList<Point>> queue = new DS8_Queue<>();
-    public static ArrayList<Point> list;
+    public static boolean[][] visited;
+    public static DS8_Queue<Point> queue = new DS8_Queue<>();
+    public static Point pointa;
+    public static Point pointA;
+    public static Point pointb;
+    public static Point pointB;
+    public static Point pointc;
+    public static Point pointC;
+    public static Point pointd;
+    public static Point pointD;
     public static int breadthFirstSearch_Portals(char[][] maze)
     {
+        pointa = findChar(maze, 'a');
+        pointA = findChar(maze, 'A');
+        pointb = findChar(maze, 'b');
+        pointB = findChar(maze, 'B');
+        pointc = findChar(maze, 'c');
+        pointC = findChar(maze, 'C');
+        pointd = findChar(maze, 'd');
+        pointD = findChar(maze, 'D');
+        int ans = 0;
         queue = new DS8_Queue<>();
-        visitor = new boolean[maze.length][maze[0].length];
-        list = new ArrayList<>();
+        visited = new boolean[maze.length][maze[0].length];
         for (int i = 0; i < maze.length; i++) {
             for (int e = 0; e < maze[0].length; e++) {
                 if (maze[i][e] == 'S') {
-                    list.add(new Point(i, e));
-                    queue.offer(list);
-                    visitor[i][e] = true;
+                    queue.offer(new Point(i, e));
+                    visited[i][e] = true;
                     break;
                 }
             }
         }
         while(!queue.isEmpty())
         {
-            list = queue.poll();
-            Point location = list.get(list.size() - 1);
-            if(maze[location.x][location.y] == 'E')
+            int size = queue.size();
+            for (int i = 0; i < size; i++)
             {
-                return list.size() - 1;
-            }
-            addToQueue(maze, new Point(location.x + 1, location.y), location);
-            addToQueue(maze, new Point(location.x - 1, location.y), location);
-            addToQueue(maze, new Point(location.x, location.y + 1), location);
-            addToQueue(maze, new Point(location.x, location.y - 1), location);
-            if ((maze[location.x][location.y] <= 'A' && maze[location.x][location.y] >= 'D') || (maze[location.x][location.y] <= 'a' && maze[location.x][location.y] >= 'd'))
-            {
-                Point portal = findChar(maze, inverseCase(maze[location.x][location.y]));
-                if (!visitor[portal.x][portal.y])
+                Point location = queue.poll();
+                if(maze[location.x][location.y] == 'E')
                 {
-                    addToQueue(maze, portal, location);
+                    return ans;
                 }
+                if (location.y + 1 < maze[0].length && !visited[location.x][location.y + 1] && maze[location.x][location.y + 1] != 'W')
+                {
+                    visited[location.x][location.y + 1] = true;
+                    queue.offer(new Point(location.x, location.y + 1));
+                }
+                if (location.x + 1 < maze.length && !visited[location.x + 1][location.y] && maze[location.x + 1][location.y] != 'W')
+                {
+                    visited[location.x + 1][location.y] = true;
+                    queue.offer(new Point(location.x + 1, location.y));
+                }
+                if (location.y - 1 >= 0 && visited[location.x][location.y - 1] == false && maze[location.x][location.y - 1] != 'W')
+                {
+                    visited[location.x][location.y - 1] = true;
+                    queue.offer(new Point(location.x, location.y - 1));
+                }
+                if (location.x - 1 >= 0 && visited[location.x - 1][location.y] == false && maze[location.x - 1][location.y] != 'W')
+                {
+                    visited[location.x - 1][location.y] = true;
+                    queue.offer(new Point(location.x - 1, location.y));
+                }
+                if (maze[location.x][location.y] == 'A' && visited[pointa.x][pointa.y] == false)
+                {
+                    visited[pointa.x][pointa.y] = true;
+                    queue.offer(pointa);
+                }
+                else if (maze[location.x][location.y] == 'a' && visited[pointA.x][pointA.y] == false)
+                {
+                    visited[pointA.x][pointA.y] = true;
+                    queue.offer(pointA);
+                }
+                else if (maze[location.x][location.y] == 'B' && visited[pointb.x][pointb.y] == false)
+                {
+                    visited[pointb.x][pointb.y] = true;
+                    queue.offer(pointb);
+                }
+                else if (maze[location.x][location.y] == 'b' && visited[pointB.x][pointB.y] == false)
+                {
+                    visited[pointB.x][pointB.y] = true;
+                    queue.offer(pointB);
+                }
+                else if (maze[location.x][location.y] == 'C' && visited[pointc.x][pointc.y] == false)
+                {
+                    visited[pointc.x][pointc.y] = true;
+                    queue.offer(pointc);
+                }
+                else if (maze[location.x][location.y] == 'c' && visited[pointC.x][pointC.y] == false)
+                {
+                    visited[pointC.x][pointC.y] = true;
+                    queue.offer(pointC);
+                }
+                else if (maze[location.x][location.y] == 'D' && visited[pointd.x][pointd.y] == false)
+                {
+                    visited[pointd.x][pointd.y] = true;
+                    queue.offer(pointd);
+                }
+                else if (maze[location.x][location.y] == 'd' && visited[pointD.x][pointD.y] == false)
+                {
+                    visited[pointD.x][pointD.y] = true;
+                    queue.offer(pointD);
+                }
+
             }
+            ans++;
         }
         return -1;
     }
@@ -105,13 +171,12 @@ public class DS8_BFS {
     {
         try
         {
-            if (maze[goTo.x][goTo.y] == 'W' || visitor[goTo.x][goTo.y])
+            if (maze[goTo.x][goTo.y] == 'W' || visited[goTo.x][goTo.y])
             {
                 return;
             }
-            list.add(goTo);
-            queue.offer(list);
-            visitor[goTo.x][goTo.y] = true;
+            queue.offer(goTo);
+            visited[goTo.x][goTo.y] = true;
         }
         catch (Exception e)
         {
