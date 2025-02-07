@@ -12,7 +12,6 @@ public class DS8_AStar {
                 if (grid[y][x] == 'E') end = new Point(x, y);
             }
         }
-        if (start == null || end == null) return null;
 
         ArrayList<DS8_AStar_Node<Point>> openList = new ArrayList<>();
         ArrayList<DS8_AStar_Node<Point>> closedList = new ArrayList<>();
@@ -30,14 +29,14 @@ public class DS8_AStar {
             for (Point neighbor : getNeighbors(current.getLocation(), grid)) {
                 if (isInList(closedList, neighbor)) continue;
 
-                int tentativeG = current.getG() + 1;
+                int G = current.getG() + 1;
                 DS8_AStar_Node<Point> neighborNode = getNodeFromList(openList, neighbor);
                 if (neighborNode == null) {
-                    neighborNode = new DS8_AStar_Node<>(neighbor, current, tentativeG, heuristic(neighbor, end));
+                    neighborNode = new DS8_AStar_Node<>(neighbor, current, G, heuristic(neighbor, end));
                     openList.add(neighborNode);
-                } else if (tentativeG < neighborNode.getG()) {
+                } else if (G < neighborNode.getG()) {
                     openList.remove(neighborNode);
-                    neighborNode = new DS8_AStar_Node<>(neighbor, current, tentativeG, heuristic(neighbor, end));
+                    neighborNode = new DS8_AStar_Node<>(neighbor, current, G, heuristic(neighbor, end));
                     openList.add(neighborNode);
                 }
             }
