@@ -2,136 +2,126 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class DS8_AStar
-{
-    public static DS8_Path_Solution aStar_Simple(char[][] maze)
-    {
-        ArrayList<DS8_AStar_Node<Point>> open = new ArrayList<>();
-        ArrayList<DS8_AStar_Node<Point>> closed = new ArrayList<>();
-        Point start = findChar(maze, 'S');
-        Point end = findChar(maze, 'E');
-        DS8_AStar_Node<Point> startNode = new DS8_AStar_Node<>(start, null, 0, heuristic(start, end));
-        open.add(startNode);
-        while (!open.isEmpty()) {
-            open.sort(DS8_AStar_Node::compareTo);
-            DS8_AStar_Node<Point> current = open.remove(0);
-            if (current.getLocation().equals(end)) {
-                return new DS8_Path_Solution<>(reconstructPath(current), current.getG());
+public class DS8_AStar {
+
+    public DS8_Path_Solution<Point> aStar_Simple(char[][] grid) {
+        Point start = null, end = null;
+        for (int y = 0; y < grid.length; y++) {
+            for (int x = 0; x < grid[0].length; x++) {
+                if (grid[y][x] == 'S') start = new Point(x, y);
+                if (grid[y][x] == 'E') end = new Point(x, y);
             }
-            closed.add(current);
-            for (Point neighbor : getNeighbors(current.getLocation(), maze)) {
-                if (containsLocation(closed, neighbor)) {
-                    continue;
-                }
+        }
+        if (start == null || end == null) return null;
+
+        ArrayList<DS8_AStar_Node<Point>> openList = new ArrayList<>();
+        ArrayList<DS8_AStar_Node<Point>> closedList = new ArrayList<>();
+        openList.add(new DS8_AStar_Node<>(start, null, 0, heuristic(start, end)));
+
+        while (!openList.isEmpty()) {
+            DS8_AStar_Node<Point> current = Collections.min(openList);
+            if (current.getLocation().equals(end)) {
+                return constructPath(current);
+            }
+
+            openList.remove(current);
+            closedList.add(current);
+
+            for (Point neighbor : getNeighbors(current.getLocation(), grid)) {
+                if (isInList(closedList, neighbor)) continue;
+
                 int tentativeG = current.getG() + 1;
-                DS8_AStar_Node<Point> neighborNode = findNode(open, neighbor);
+                DS8_AStar_Node<Point> neighborNode = getNodeFromList(openList, neighbor);
                 if (neighborNode == null) {
                     neighborNode = new DS8_AStar_Node<>(neighbor, current, tentativeG, heuristic(neighbor, end));
-                    open.add(neighborNode);
-                } 
-                else if (tentativeG < neighborNode.getG()) {
-                    open.remove(neighborNode);
-                    neighborNode = new DS8_AStar_Node<>(neighbor, current, tentativeG, neighborNode.getH());
-                    open.add(neighborNode);
+                    openList.add(neighborNode);
+                } else if (tentativeG < neighborNode.getG()) {
+                    openList.remove(neighborNode);
+                    neighborNode = new DS8_AStar_Node<>(neighbor, current, tentativeG, heuristic(neighbor, end));
+                    openList.add(neighborNode);
                 }
             }
         }
         return null;
     }
-    public static int aStar_JetPack(char[][] grid) {
-        ArrayList<DS8_AStar_Node<Point>> open = new ArrayList<>();
-        ArrayList<DS8_AStar_Node<Point>> closed = new ArrayList<>();
-        Point start = findChar(grid, 'S');
-        Point end = findChar(grid, 'E');
-        DS8_AStar_Node<Point> startNode = new DS8_AStar_Node<>(start, null, 0, heuristic(start, end));
-        open.add(startNode);
-        while (!open.isEmpty()) {
-            open.sort(DS8_AStar_Node::compareTo);
-            DS8_AStar_Node<Point> current = open.remove(0);
-            if (current.getLocation().equals(end)) {
-                return current.getG();
-            }
-            closed.add(current);
-            for (Point neighbor : getNeighborsJetPack(current.getLocation(), grid)) {
-                if (containsLocation(closed, neighbor)) {
-                    continue;
-                }
-                int tentativeG = current.getG() + (grid[neighbor.x][neighbor.y] == 'O' ? 1 : 0);
-                DS8_AStar_Node<Point> neighborNode = findNode(open, neighbor);
-                if (neighborNode == null) {
-                    neighborNode = new DS8_AStar_Node<>(neighbor, current, tentativeG, heuristic(neighbor, end));
-                    open.add(neighborNode);
-                } 
-                else if (tentativeG < neighborNode.getG()) {
-                    open.remove(neighborNode);
-                    neighborNode = new DS8_AStar_Node<>(neighbor, current, tentativeG, neighborNode.getH());
-                    open.add(neighborNode);
-                }
-            }
-        }
-        
-        return -1;
-    }
-    private static int heuristic(Point a, Point b) {
+
+    private int heuristic(Point a, Point b) {
         return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
     }
-    private static ArrayList<Point> reconstructPath(DS8_AStar_Node<Point> node) {
-        ArrayList<Point> path = new ArrayList<>();
-        while (node != null) {
-            path.add(node.getLocation());
-            node = node.getParent();
-        }
-        Collections.reverse(path);
-        return path;
-    }
-    private static boolean containsLocation(ArrayList<DS8_AStar_Node<Point>> list, Point location) {
-        for (DS8_AStar_Node<Point> node : list) {
-            if (node.getLocation().equals(location)) {
-                return true;
+
+    private ArrayList<Point> getNeighbors(Point p, char[][] grid) {
+        ArrayList<Point> neighbors = new ArrayList<>();
+        int[] dx = {-1, 1, 0, 0};
+        int[] dy = {0, 0, -1, 1};
+        for (int i = 0; i < 4; i++) {
+            int nx = p.x + dx[i], ny = p.y + dy[i];
+            if (nx >= 0 && ny >= 0 && nx < grid[0].length && ny < grid.length && grid[ny][nx] != 'W') {
+                neighbors.add(new Point(nx, ny));
             }
+        }
+        return neighbors;
+    }
+
+    private boolean isInList(ArrayList<DS8_AStar_Node<Point>> list, Point p) {
+        for (DS8_AStar_Node<Point> node : list) {
+            if (node.getLocation().equals(p)) return true;
         }
         return false;
     }
-    private static DS8_AStar_Node<Point> findNode(ArrayList<DS8_AStar_Node<Point>> list, Point location) {
+
+    private DS8_AStar_Node<Point> getNodeFromList(ArrayList<DS8_AStar_Node<Point>> list, Point p) {
         for (DS8_AStar_Node<Point> node : list) {
-            if (node.getLocation().equals(location)) {
-                return node;
-            }
+            if (node.getLocation().equals(p)) return node;
         }
         return null;
     }
-    private static ArrayList<Point> getNeighbors(Point p, char[][] maze) {
-        ArrayList<Point> neighbors = new ArrayList<>();
-        int[] dx = {1, -1, 0, 0};
-        int[] dy = {0, 0, 1, -1};
-        for (int i = 0; i < 4; i++) {
-            int x = p.x + dx[i];
-            int y = p.y + dy[i];
-            if (x >= 0 && x < maze.length && y >= 0 && y < maze[0].length && maze[x][y] != 'W') {
-                neighbors.add(new Point(x, y));
+
+    private DS8_Path_Solution<Point> constructPath(DS8_AStar_Node<Point> node) {
+        ArrayList<Point> path = new ArrayList<>();
+        int distance = 0;
+        while (node != null) {
+            path.add(node.getLocation());
+            node = node.getParent();
+            distance++;
+        }
+        Collections.reverse(path);
+        return new DS8_Path_Solution<>(path, distance - 1);
+    }
+    public DS8_Path_Solution<Point> aStar_JetPack(char[][] grid) {
+        Point start = null, end = null;
+        for (int y = 0; y < grid.length; y++) {
+            for (int x = 0; x < grid[0].length; x++) {
+                if (grid[y][x] == 'S') start = new Point(x, y);
+                if (grid[y][x] == 'E') end = new Point(x, y);
             }
         }
-        return neighbors;
-    }
-    
-    private static ArrayList<Point> getNeighborsJetPack(Point p, char[][] grid) {
-        ArrayList<Point> neighbors = new ArrayList<>();
-        int[] dx = {1, -1, 0, 0, 1, 1, -1, -1};
-        int[] dy = {0, 0, 1, -1, 1, -1, 1, -1};
-        for (int i = 0; i < 8; i++) {
-            int x = p.x + dx[i];
-            int y = p.y + dy[i];
-            if (x >= 0 && x < grid.length && y >= 0 && y < grid[0].length && grid[x][y] != 'W') {
-                neighbors.add(new Point(x, y));
+        if (start == null || end == null) return null;
+
+        ArrayList<DS8_AStar_Node<Point>> openList = new ArrayList<>();
+        ArrayList<DS8_AStar_Node<Point>> closedList = new ArrayList<>();
+        openList.add(new DS8_AStar_Node<>(start, null, 0, heuristic(start, end)));
+
+        while (!openList.isEmpty()) {
+            DS8_AStar_Node<Point> current = Collections.min(openList);
+            if (current.getLocation().equals(end)) {
+                return constructPath(current);
             }
-        }
-        return neighbors;
-    }
-    public static Point findChar(char[][] maze, char a) {
-        for (int r = 0; r < maze.length; r++) {
-            for (int c = 0; c < maze[0].length; c++) {
-                if (maze[r][c] == a) {
-                    return new Point(r, c);
+
+            openList.remove(current);
+            closedList.add(current);
+
+            for (Point neighbor : getNeighbors(current.getLocation(), grid)) {
+                if (isInList(closedList, neighbor)) continue;
+
+                int tentativeG = current.getG() + (grid[neighbor.y][neighbor.x] == 'O' ? 1 : 0);
+                DS8_AStar_Node<Point> neighborNode = getNodeFromList(openList, neighbor);
+                if (neighborNode == null) {
+                    neighborNode = new DS8_AStar_Node<>(neighbor, current, tentativeG, heuristic(neighbor, end));
+                    openList.add(neighborNode);
+                } else if (tentativeG < neighborNode.getG()) {
+                    openList.remove(neighborNode);
+                    neighborNode = new DS8_AStar_Node<>(neighbor, current, tentativeG, heuristic(neighbor, end));
+                    openList.add(neighborNode);
                 }
             }
         }

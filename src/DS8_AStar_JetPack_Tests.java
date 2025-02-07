@@ -1,4 +1,3 @@
-package SolutionsAndTests.CS_DS.u8.ChallengeSet4;
 
 import org.junit.Assert;
 import org.junit.Before;

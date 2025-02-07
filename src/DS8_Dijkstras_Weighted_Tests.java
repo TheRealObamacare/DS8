@@ -1,3 +1,4 @@
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -110,7 +111,6 @@ public class DS8_Dijkstras_Weighted_Tests
         allowedImports.add("java.util.ArrayList");
         allowedImports.add("java.util.Collections");
         allowedImports.add("java.awt.Point");
-        allowedImports.add("java.awt.Arrays");
     }
 
     @Test(timeout = 250)

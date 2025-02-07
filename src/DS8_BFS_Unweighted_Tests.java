@@ -1,8 +1,8 @@
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.awt.*;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -107,10 +107,7 @@ public class DS8_BFS_Unweighted_Tests {
     @Before
     public void setup()
     {
-        allowedImports.add("java.util.ArrayList");
-        allowedImports.add("java.util.Collections");
         allowedImports.add("java.awt.Point");
-        allowedImports.add("java.awt.Arrays");
     }
 
     @Test(timeout = 250)
@@ -166,11 +163,8 @@ public class DS8_BFS_Unweighted_Tests {
                         assertNull("breadthFirstSearch_Unweighted(" + Arrays.toString(staticGraphs[g]) + ", " + staticVertices[g] + ", " +staticSolutions[g][t].charAt(0)+", "+staticSolutions[g][t].charAt(1)+") failed to produce null.",
                                 unweighted.invoke(dfs,staticGraphs[g],staticVertices[g],staticSolutions[g][t].charAt(0),staticSolutions[g][t].charAt(1)));
                     else
-                        checkSolution(
-                                "breadthFirstSearch_Unweighted(" + Arrays.toString(staticGraphs[g]) + ", " + staticVertices[g] + ", " +staticSolutions[g][t].charAt(0)+", "+staticSolutions[g][t].charAt(1)+") failed ",
-                                staticGraphs[g],
-                                staticSolutions[g][t],
-                                (String) unweighted.invoke(dfs,staticGraphs[g],staticVertices[g],staticSolutions[g][t].charAt(0),staticSolutions[g][t].charAt(1)));
+                        assertEquals("breadthFirstSearch_Unweighted(" + Arrays.toString(staticGraphs[g]) + ", " + staticVertices[g] + ", " +staticSolutions[g][t].charAt(0)+", "+staticSolutions[g][t].charAt(1)+") failed to produce the correct result.",staticSolutions[g][t].substring(2),
+                                unweighted.invoke(dfs,staticGraphs[g],staticVertices[g],staticSolutions[g][t].charAt(0),staticSolutions[g][t].charAt(1)));
                 }
         }
         catch ( InvocationTargetException e )
@@ -192,11 +186,8 @@ public class DS8_BFS_Unweighted_Tests {
                         assertNull("breadthFirstSearch_Unweighted(" + Arrays.toString(testGraphs[g]) + ", " + testVertices[g] + ", " +testSolutions[g][t].charAt(0)+", "+testSolutions[g][t].charAt(1)+") failed to produce null.",
                                 unweighted.invoke(dfs,testGraphs[g],testVertices[g],testSolutions[g][t].charAt(0),testSolutions[g][t].charAt(1)));
                     else
-                        checkSolution(
-                                "breadthFirstSearch_Unweighted(" + Arrays.toString(testGraphs[g]) + ", " + testVertices[g] + ", " +testSolutions[g][t].charAt(0)+", "+testSolutions[g][t].charAt(1)+") failed ",
-                                testGraphs[g],
-                                testSolutions[g][t],
-                                (String) unweighted.invoke(dfs,testGraphs[g],testVertices[g],testSolutions[g][t].charAt(0),testSolutions[g][t].charAt(1)));
+                        assertEquals("breadthFirstSearch_Unweighted(" + Arrays.toString(testGraphs[g]) + ", " + testVertices[g] + ", " +testSolutions[g][t].charAt(0)+", "+testSolutions[g][t].charAt(1)+") failed to produce the correct result.",testSolutions[g][t].substring(2),
+                                unweighted.invoke(dfs,testGraphs[g],testVertices[g],testSolutions[g][t].charAt(0),testSolutions[g][t].charAt(1)));
                 }
         }
         catch ( InvocationTargetException e )
@@ -204,28 +195,4 @@ public class DS8_BFS_Unweighted_Tests {
             throw (Exception) e.getCause();
         }
     }
-
-    public void checkSolution(String message,String[] edgesIn, String teacherSolution,String studentSolution)
-    {
-        ArrayList<String> edgesList = new ArrayList<>();
-        for(String ed:edgesIn)
-            edgesList.add(ed);
-
-        Assert.assertNotNull(message + "to produce a path",studentSolution);
-
-        Assert.assertEquals(message + "to produce a path of the correct length",teacherSolution.length()-2,studentSolution.length());
-
-        Assert.assertEquals(message + "to produce a path that starts with "+teacherSolution.charAt(0),teacherSolution.charAt(0),studentSolution.charAt(0));
-        Assert.assertEquals(message + "to produce a path that ends with "+teacherSolution.charAt(1),teacherSolution.charAt(1),studentSolution.charAt(studentSolution.length()-1));
-
-        Assert.assertEquals(message + "to produce a path that ends with "+teacherSolution.charAt(1),teacherSolution.charAt(1),studentSolution.charAt(studentSolution.length()-1));
-
-        for(int x =1; x<studentSolution.length(); x++)
-            Assert.assertTrue(message + " due to containing an invalid edge.",
-                    edgesList.contains(studentSolution.charAt(x-1)+""+studentSolution.charAt(x)) ||
-                            edgesList.contains(studentSolution.charAt(x)+""+studentSolution.charAt(x-1)) );
-
-    }
-
-
 }
