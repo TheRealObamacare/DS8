@@ -2,59 +2,67 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.awt.Point;
 
-public class DS8_Graphs
-{
-    // see what a bridge is in a graph and return which edge is a bridge, if it can connect to fewer vertices than with that path, it is a bridge
-    public static ArrayList<String> bridges(String[] edges, String vertices)
-    {
-        int max = breadthFirstSearch_Unweighted(edges, vertices, vertices.charAt(0));
+public class DS8_Graphs {
+    private static int time = 0;
+
+    public static ArrayList<String> bridges(String[] edges, String vertices) {
+        int V = vertices.length();
+        ArrayList<ArrayList<Integer>> adj = new ArrayList<>(V);
+        for (int i = 0; i < V; i++) {
+            adj.add(new ArrayList<>());
+        }
+        for (String edge : edges) {
+            int u = vertices.indexOf(edge.charAt(0));
+            int v = vertices.indexOf(edge.charAt(1));
+            adj.get(u).add(v);
+            adj.get(v).add(u);
+        }
+        boolean[] visited = new boolean[V];
+        int[] disc = new int[V];
+        int[] low = new int[V];
+        int[] parent = new int[V];
         ArrayList<String> bridges = new ArrayList<>();
-        for(int i = 0; i < edges.length; i++)
+        for (int i = 0; i < V; i++) {
+            parent[i] = -1;
+            visited[i] = false;
+        }
+        for (int i = 0; i < V; i++)
+            if (!visited[i])
+                bridgeUtil(i, visited, disc, low, parent, adj, vertices, bridges, edges);
+        return bridges.isEmpty() ? null : bridges;
+    }
+
+    private static void bridgeUtil(int u, boolean[] visited, int[] disc, int[] low, int[] parent, ArrayList<ArrayList<Integer>> adj, String vertices, ArrayList<String> bridges, String[] edges) {
+        visited[u] = true;
+        disc[u] = low[u] = ++time;
+
+        for (int v : adj.get(u))
         {
-            String[] temp = new String[edges.length-1];
-            for (int j = 0; j < edges.length; j++)
+            if (!visited[v])
             {
-                if(j < i)
+                parent[v] = u;
+                bridgeUtil(v, visited, disc, low, parent, adj, vertices, bridges, edges);
+
+                low[u] = Math.min(low[u], low[v]);
+
+                if (low[v] > disc[u])
                 {
-                    temp[j] = edges[j];
-                }
-                else if(j > i)
-                {
-                    temp[j-1] = edges[j];
+                    String bridge = "" + vertices.charAt(u) + vertices.charAt(v);
+                    for (String edge : edges)
+                    {
+                        if (edge.equals(bridge) || edge.equals("" + vertices.charAt(v) + vertices.charAt(u)))
+                        {
+                            bridges.add(edge);
+                            break;
+                        }
+                    }
                 }
             }
-            if(breadthFirstSearch_Unweighted(temp, vertices, vertices.charAt(0)) < max)
+            else if (v != parent[u])
             {
-                bridges.add(edges[i]);
+                low[u] = Math.min(low[u], disc[v]);
             }
         }
-        return bridges;
     }
-    public static int breadthFirstSearch_Unweighted(String[] edges, String vertices, char start)
-    {
-        DS8_Queue<String> Queue = new DS8_Queue<>();
-        Queue.offer(start + "");
-        int max = 0;
-        boolean[] visited = new boolean[edges.length];
-        while(!Queue.isEmpty())
-        {
-            String cur = Queue.poll();
-            for(int i = 0; i < edges.length; i++)
-            {
-                if (edges[i].charAt(0) == cur.charAt(cur.length() - 1) && !visited[i])
-                {
-                    max++;
-                    Queue.offer(cur + 1);
-                    visited[i] = true;
-                }
-                else if (edges[i].charAt(1) == cur.charAt(cur.length() - 1) && !visited[i])
-                {
-                    max++;
-                    Queue.offer(cur + 1);
-                    visited[i] = true;
-                }
-            }
-        }
-        return max;
-    }
+    
 }
