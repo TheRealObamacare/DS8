@@ -64,5 +64,65 @@ public class DS8_Graphs {
             }
         }
     }
-    
+
+    public static String[] stronglyConnectedRegions(String[] edges, String vertices) {
+        int V = vertices.length();
+        ArrayList<ArrayList<Integer>> adj = new ArrayList<>(V);
+        for (int i = 0; i < V; i++) {
+            adj.add(new ArrayList<>());
+        }
+        for (String edge : edges) {
+            int u = vertices.indexOf(edge.charAt(0));
+            int v = vertices.indexOf(edge.charAt(1));
+            adj.get(u).add(v);
+        }
+
+        boolean[] visited = new boolean[V];
+        int[] disc = new int[V];
+        int[] low = new int[V];
+        boolean[] stackMember = new boolean[V];
+        DS8_Stack<Integer> stack = new DS8_Stack<>();
+        ArrayList<String> sccList = new ArrayList<>();
+
+        for (int i = 0; i < V; i++) {
+            disc[i] = -1;
+            low[i] = -1;
+            visited[i] = false;
+            stackMember[i] = false;
+        }
+
+        for (int i = 0; i < V; i++) {
+            if (disc[i] == -1) {
+                sccUtil(i, disc, low, stack, stackMember, adj, vertices, sccList);
+            }
+        }
+
+        return sccList.isEmpty() ? null : sccList.toArray(new String[0]);
+    }
+
+    private static void sccUtil(int u, int[] disc, int[] low, DS8_Stack<Integer> stack, boolean[] stackMember, ArrayList<ArrayList<Integer>> adj, String vertices, ArrayList<String> sccList) {
+        disc[u] = low[u] = ++time;
+        stack.push(u);
+        stackMember[u] = true;
+
+        for (int v : adj.get(u)) {
+            if (disc[v] == -1) {
+                sccUtil(v, disc, low, stack, stackMember, adj, vertices, sccList);
+                low[u] = Math.min(low[u], low[v]);
+            } else if (stackMember[v]) {
+                low[u] = Math.min(low[u], disc[v]);
+            }
+        }
+
+        int w = -1;
+        if (low[u] == disc[u]) {
+            StringBuilder scc = new StringBuilder();
+            while (w != u) {
+                w = stack.pop();
+                stackMember[w] = false;
+                scc.append(vertices.charAt(w));
+            }
+            sccList.add(scc.toString());
+        }
+    }
 }
