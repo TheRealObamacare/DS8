@@ -66,63 +66,87 @@ public class DS8_Graphs {
     }
 
     public static String[] stronglyConnectedRegions(String[] edges, String vertices) {
-        int V = vertices.length();
-        ArrayList<ArrayList<Integer>> adj = new ArrayList<>(V);
-        for (int i = 0; i < V; i++) {
-            adj.add(new ArrayList<>());
-        }
-        for (String edge : edges) {
-            int u = vertices.indexOf(edge.charAt(0));
-            int v = vertices.indexOf(edge.charAt(1));
-            adj.get(u).add(v);
+        int n = vertices.length();
+        ArrayList<ArrayList<Integer>> graph = new ArrayList<ArrayList<Integer>>();
+        for (int i = 0; i < n; i++)
+            graph.add(new ArrayList<Integer>());
+        for (String edge : edges)
+        {
+            if (edge == null || edge.length() < 2)
+                continue;
+            char fromChar = edge.charAt(0);
+            char toChar = edge.charAt(1);
+            int fromIndex = vertices.indexOf(fromChar);
+            int toIndex = vertices.indexOf(toChar);
+            if (fromIndex != -1 && toIndex != -1)
+                graph.get(fromIndex).add(toIndex);
         }
 
-        boolean[] visited = new boolean[V];
-        int[] disc = new int[V];
-        int[] low = new int[V];
-        boolean[] stackMember = new boolean[V];
+
+        int[] ids = new int[n];
+        int[] low = new int[n];
+        boolean[] onStack = new boolean[n];
+        for (int i = 0; i < n; i++)
+            ids[i] = -1;
         DS8_Stack<Integer> stack = new DS8_Stack<>();
-        ArrayList<String> sccList = new ArrayList<>();
-
-        for (int i = 0; i < V; i++) {
-            disc[i] = -1;
-            low[i] = -1;
-            visited[i] = false;
-            stackMember[i] = false;
-        }
-
-        for (int i = 0; i < V; i++) {
-            if (disc[i] == -1) {
-                sccUtil(i, disc, low, stack, stackMember, adj, vertices, sccList);
+        ArrayList<ArrayList<Integer>> sccList = new ArrayList<>();
+        int[] idCounter = new int[]{0};
+        for (int i = 0; i < n; i++) {
+            if (ids[i] == -1) {
+                dfs(i, graph, ids, low, onStack, stack, idCounter, sccList);
             }
         }
-
-        return sccList.isEmpty() ? null : sccList.toArray(new String[0]);
+        ArrayList<String> regions = new ArrayList<>();
+        for (ArrayList<Integer> component : sccList)
+        {
+            if (component.size() > 1)
+            {
+                Collections.reverse(component);
+                StringBuilder sb = new StringBuilder();
+                for (int index : component)
+                {
+                    sb.append(vertices.charAt(index));
+                }
+                regions.add(sb.toString());
+            }
+        }
+        if (regions.size() == 0)
+            return null;
+        String[] result = new String[regions.size()];
+        for (int i = 0; i < regions.size(); i++) {
+            result[i] = regions.get(i);
+        }
+        return result;
     }
-
-    private static void sccUtil(int u, int[] disc, int[] low, DS8_Stack<Integer> stack, boolean[] stackMember, ArrayList<ArrayList<Integer>> adj, String vertices, ArrayList<String> sccList) {
-        disc[u] = low[u] = ++time;
-        stack.push(u);
-        stackMember[u] = true;
-
-        for (int v : adj.get(u)) {
-            if (disc[v] == -1) {
-                sccUtil(v, disc, low, stack, stackMember, adj, vertices, sccList);
-                low[u] = Math.min(low[u], low[v]);
-            } else if (stackMember[v]) {
-                low[u] = Math.min(low[u], disc[v]);
+    private static void dfs(int at, ArrayList<ArrayList<Integer>> graph, int[] ids, int[] low,
+                            boolean[] onStack, DS8_Stack<Integer> stack, int[] idCounter,
+                            ArrayList<ArrayList<Integer>> sccList) {
+        ids[at] = idCounter[0];
+        low[at] = idCounter[0];
+        idCounter[0]++;
+        stack.push(at);
+        onStack[at] = true;
+        for (int to : graph.get(at)) 
+        {
+            if (ids[to] == -1)
+            {
+                dfs(to, graph, ids, low, onStack, stack, idCounter, sccList);
+                low[at] = Math.min(low[at], low[to]);
             }
+            else if (onStack[to])
+                low[at] = Math.min(low[at], ids[to]);
         }
-
-        int w = -1;
-        if (low[u] == disc[u]) {
-            StringBuilder scc = new StringBuilder();
-            while (w != u) {
-                w = stack.pop();
-                stackMember[w] = false;
-                scc.append(vertices.charAt(w));
-            }
-            sccList.add(scc.toString());
+        if (ids[at] == low[at])
+        {
+            ArrayList<Integer> component = new ArrayList<>();
+            int node;
+            do
+            {
+                node = stack.pop();
+                onStack[node] = false;
+                component.add(node);
+            } while (node != at);
+            sccList.add(component);
         }
     }
 }
